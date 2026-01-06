@@ -3,287 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Nummerpad</title>
+    <title>Login</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .login-container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .name-display {
-            font-size: 28px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .instruction {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .password-display {
-            background: #f5f5f7;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-            font-size: 24px;
-            letter-spacing: 8px;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #333;
-            border: 2px solid #e0e0e0;
-        }
-
-        .password-mask {
-            color: #333;
-        }
-
-        .numpad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .num-btn {
-            background: #f5f5f7;
-            border: none;
-            border-radius: 12px;
-            padding: 20px;
-            font-size: 24px;
-            font-weight: 500;
-            color: #333;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .num-btn:hover {
-            background: #e5e5e7;
-            transform: translateY(-2px);
-        }
-
-        .num-btn:active {
-            transform: translateY(0);
-            background: #d5d5d7;
-        }
-
-        .bottom-buttons {
-            display: flex;
-            gap: 15px;
-        }
-
-        .action-btn {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .delete-btn {
-            background: #ff3b30;
-            color: white;
-        }
-
-        .delete-btn:hover {
-            background: #ff2d20;
-        }
-
-        .submit-btn {
-            background: #007aff;
-            color: white;
-        }
-
-        .submit-btn:hover {
-            background: #0062cc;
-        }
-
-        .message {
-            text-align: center;
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 14px;
-            display: none;
-        }
-
-        .error {
-            background: #ffcccb;
-            color: #d32f2f;
-            display: block;
-        }
-
-        .success {
-            background: #c8e6c9;
-            color: #2e7d32;
-            display: block;
-        }
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 320px; text-align: center; }
+        .hidden { display: none; }
+        button { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 4px; background: #1a73e8; color: white; cursor: pointer; font-size: 16px; }
+        button:hover { background: #1557b0; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .error { color: #d93025; font-size: 14px; margin-top: 10px; }
+        .account-btn { background: #f8f9fa; color: #3c4043; border: 1px solid #dadce0; text-align: left; padding-left: 15px; }
+        .account-btn:hover { background: #f1f3f4; }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="header">
-            <div class="name-display" id="nameDisplay">Naam</div>
-            <div class="instruction">Enter password to continue</div>
-        </div>
-        
-        <div class="password-display">
-            <span id="passwordMask"></span>
-        </div>
-        
-        <div class="numpad">
-            <button class="num-btn" data-number="1">1</button>
-            <button class="num-btn" data-number="2">2</button>
-            <button class="num-btn" data-number="3">3</button>
-            <button class="num-btn" data-number="4">4</button>
-            <button class="num-btn" data-number="5">5</button>
-            <button class="num-btn" data-number="6">6</button>
-            <button class="num-btn" data-number="7">7</button>
-            <button class="num-btn" data-number="8">8</button>
-            <button class="num-btn" data-number="9">9</button>
-            <button class="num-btn" style="visibility: hidden;"></button>
-            <button class="num-btn" data-number="0">0</button>
-            <button class="num-btn" style="visibility: hidden;"></button>
-        </div>
-        
-        <div class="bottom-buttons">
-            <button class="action-btn delete-btn" id="deleteBtn">Delete</button>
-            <button class="action-btn submit-btn" id="submitBtn">Submit</button>
-        </div>
-        
-        <div class="message" id="message"></div>
-    </div>
 
-    <script>
-        // Haal naam en code uit de URL
-        const pathParts = window.location.pathname.split('/');
-        const lastPart = pathParts[pathParts.length - 1];
+<div class="card" id="step1">
+    <h2>Please Login To Continue</h2>
+    <button onclick="goToStep2()">Login</button>
+</div>
+
+<div class="card hidden" id="step2">
+    <h2>Choose account:</h2>
+    <div id="account-list"></div>
+</div>
+
+<div class="card hidden" id="step3">
+    <h2 id="welcome-msg">Welcome back</h2>
+    <p>Please enter password to continue</p>
+    <input type="password" id="password-input" placeholder="Wachtwoord">
+    <button onclick="checkPassword()">Continue</button>
+    <div id="error-msg" class="error"></div>
+</div>
+
+<script>
+    // Haal de data uit de URL
+    // Voorbeeld: .../432789-www.google.com.chat-hallo-hoi-doei
+    const path = window.location.pathname.split('/').pop();
+    const parts = path.split('-'); // Splits op het streepje
+    
+    const correctPassword = parts[0]; // "432789"
+    
+    // De link repareren (derde punt wordt een /)
+    // www.google.com.chat -> www.google.com/chat
+    let targetLink = parts[1] ? parts[1].replace(/\.(?=[^.]*$)/, '/') : "https://google.com";
+    if (!targetLink.startsWith('http')) targetLink = 'https://' + targetLink;
+
+    // De accounts (alles na het tweede streepje)
+    const accounts = parts.slice(2); 
+
+    function goToStep2() {
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
         
-        let expectedName = "Naam";
-        let expectedCode = "";
+        const list = document.getElementById('account-list');
+        accounts.forEach(acc => {
+            const btn = document.createElement('button');
+            btn.className = 'account-btn';
+            btn.innerText = acc.charAt(0).toUpperCase() + acc.slice(1);
+            btn.onclick = () => goToStep3(acc);
+            list.appendChild(btn);
+        });
+    }
+
+    let selectedUser = "";
+    function goToStep3(user) {
+        selectedUser = user;
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step3').classList.remove('hidden');
+        document.getElementById('welcome-msg').innerText = `Welcome back, ${user}`;
+    }
+
+    function checkPassword() {
+        const input = document.getElementById('password-input').value;
+        const errorDiv = document.getElementById('error-msg');
         
-        if (lastPart && lastPart.includes('-')) {
-            const [name, code] = lastPart.split('-');
-            expectedName = decodeURIComponent(name);
-            expectedCode = code;
+        const errorMessages = [
+            "Please try again",
+            "Password incorrect",
+            "Please try again later"
+        ];
+
+        if (input === correctPassword) {
+            window.location.href = targetLink;
+        } else {
+            const randomError = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+            errorDiv.innerText = randomError;
+            document.getElementById('password-input').value = "";
         }
-        
-        // Variabelen
-        let enteredPassword = "";
-        const passwordDisplay = document.getElementById('passwordMask');
-        const nameDisplay = document.getElementById('nameDisplay');
-        const messageDiv = document.getElementById('message');
-        
-        // Zet de naam in de display
-        nameDisplay.textContent = expectedName;
-        
-        // Update wachtwoord display
-        function updatePasswordDisplay() {
-            passwordDisplay.textContent = '•'.repeat(enteredPassword.length);
-        }
-        
-        // Nummer knoppen
-        document.querySelectorAll('.num-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const number = e.target.getAttribute('data-number');
-                if (number !== null && enteredPassword.length < 6) {
-                    enteredPassword += number;
-                    updatePasswordDisplay();
-                }
-            });
-        });
-        
-        // Delete knop
-        document.getElementById('deleteBtn').addEventListener('click', () => {
-            if (enteredPassword.length > 0) {
-                enteredPassword = enteredPassword.slice(0, -1);
-                updatePasswordDisplay();
-            }
-        });
-        
-        // Submit knop
-        document.getElementById('submitBtn').addEventListener('click', () => {
-            if (enteredPassword.length === 0) {
-                showMessage('Voer een code in', 'error');
-                return;
-            }
-            
-            if (enteredPassword === expectedCode) {
-                showMessage('Correct! Toegang verleend.', 'success');
-                // Hier kun je redirecten naar een andere pagina
-                // window.location.href = '/dashboard.html';
-            } else {
-                showMessage('Onjuiste code. Probeer opnieuw.', 'error');
-                enteredPassword = '';
-                updatePasswordDisplay();
-            }
-        });
-        
-        // Toon bericht
-        function showMessage(text, type) {
-            messageDiv.textContent = text;
-            messageDiv.className = 'message ' + type;
-            
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 3000);
-        }
-        
-        // Toetsenbord ondersteuning
-        document.addEventListener('keydown', (e) => {
-            if (e.key >= '0' && e.key <= '9' && enteredPassword.length < 6) {
-                enteredPassword += e.key;
-                updatePasswordDisplay();
-            } else if (e.key === 'Backspace') {
-                if (enteredPassword.length > 0) {
-                    enteredPassword = enteredPassword.slice(0, -1);
-                    updatePasswordDisplay();
-                }
-            } else if (e.key === 'Enter') {
-                document.getElementById('submitBtn').click();
-            }
-        });
-        
-        // Initialiseer display
-        updatePasswordDisplay();
-        
-        // Debug info (kan verwijderd worden in productie)
-        console.log('Verwachte naam:', expectedName);
-        console.log('Verwachte code:', expectedCode);
-    </script>
+    }
+</script>
+
 </body>
 </html>
