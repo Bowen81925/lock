@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Login</title>
+    <title>Inloggen</title>
     <style>
         :root {
             --google-blue: #1a73e8;
             --error-red: #d93025;
             --text-gray: #5f6368;
-            --border-color: #dadce0;
+            --border: #dadce0;
         }
 
         body { 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            font-family: 'Segoe UI', Arial, sans-serif; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -28,22 +28,14 @@
             border-radius: 8px; 
             box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
             width: 360px; 
-            min-height: 380px;
+            min-height: 350px;
             text-align: center;
-            display: flex;
-            flex-direction: column;
         }
 
         .hidden { display: none !important; }
 
-        h2 { 
-            color: #202124; 
-            font-size: 24px; 
-            font-weight: 400;
-            margin: 0 0 10px 0; 
-        }
-
-        p { color: var(--text-gray); font-size: 16px; margin-bottom: 25px; }
+        h2 { color: #202124; font-size: 24px; font-weight: 400; margin-bottom: 10px; }
+        p { color: var(--text-gray); margin-bottom: 25px; }
 
         button { 
             width: 100%; 
@@ -64,24 +56,21 @@
         .account-btn { 
             background: white; 
             color: #3c4043; 
-            border: 1px solid var(--border-color); 
+            border: 1px solid var(--border); 
             text-align: left; 
             padding: 12px 15px; 
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 15px;
         }
         
         .account-btn:hover { background: #f8f9fa; }
 
-        /* Wachtwoord sectie */
-        .input-group { position: relative; width: 100%; margin: 10px 0; }
-
         input { 
             width: 100%; 
             padding: 13px 15px; 
-            border: 1px solid var(--border-color); 
+            margin: 15px 0; 
+            border: 1px solid var(--border); 
             border-radius: 4px; 
             box-sizing: border-box; 
             font-size: 16px; 
@@ -89,39 +78,7 @@
 
         input:focus { outline: 2px solid var(--google-blue); border-color: transparent; }
 
-        .eye-icon {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            background: none;
-            border: none;
-            font-size: 18px;
-            padding: 0;
-            color: var(--text-gray);
-        }
-
-        .error { 
-            color: var(--error-red); 
-            font-size: 13px; 
-            margin-top: 8px; 
-            text-align: left;
-            min-height: 18px;
-        }
-
-        .avatar {
-            width: 64px;
-            height: 64px;
-            background: #e8eaed;
-            border-radius: 50%;
-            margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            color: #5f6368;
-        }
+        .error { color: var(--error-red); font-size: 14px; margin-top: 10px; text-align: left; }
     </style>
 </head>
 <body>
@@ -130,7 +87,7 @@
     <div id="step1">
         <h2>Please Login To Continue</h2>
         <p>Use your account to proceed to the secure destination.</p>
-        <button onclick="showStep(2)">Login</button>
+        <button onclick="goToStep(2)">Login</button>
     </div>
 
     <div id="step2" class="hidden">
@@ -140,40 +97,35 @@
     </div>
 
     <div id="step3" class="hidden">
-        <div class="avatar">👤</div>
-        <h2 id="welcome-msg">Welcome</h2>
-        <p id="user-email" style="margin-bottom: 10px; font-size: 14px;"></p>
+        <h2 id="welcome-msg">Welcome back</h2>
+        <p>Please enter password to continue</p>
         
-        <div class="input-group">
-            <input type="password" id="pass-field" placeholder="Enter your password">
-            <button type="button" class="eye-icon" onclick="toggleVisibility()">👁️</button>
-        </div>
+        <input type="password" id="pass-field" placeholder="Password">
         
         <div id="error-box" class="error"></div>
-        <button onclick="verifyAndRedirect()" style="margin-top: 15px;">Continue</button>
+        <button onclick="checkPass()">Continue</button>
     </div>
 </div>
 
 <script>
-    // 1. Haal de data uit de URL (?id=wachtwoord-link-naam1-naam2)
-    const params = new URLSearchParams(window.location.search);
-    const rawData = params.get('id') || "";
-    const parts = rawData.split('-');
+    // Haal data uit de URL (?id=wachtwoord-link-naam1-naam2)
+    const urlParams = new URLSearchParams(window.location.search);
+    const data = urlParams.get('id') || "";
+    const parts = data.split('-');
 
-    const correctPass = parts[0] || "";
-    let targetBase = parts[1] || "www.google.com";
-    const userList = parts.slice(2);
+    const correctPassword = parts[0] || ""; // Kan letters of cijfers zijn
+    let target = parts[1] || "www.google.com";
+    const accounts = parts.slice(2);
 
-    // 2. Formatteer de link (derde punt wordt /)
-    function buildUrl(str) {
-        let pCount = 0;
-        let formatted = str.replace(/\./g, (m) => (++pCount === 3 ? '/' : m));
+    // Formatteer bestemming (3e punt wordt /)
+    function getLink(str) {
+        let count = 0;
+        let formatted = str.replace(/\./g, m => (++count === 3 ? '/' : m));
         return formatted.startsWith('http') ? formatted : 'https://' + formatted;
     }
-    const finalDestination = buildUrl(targetBase);
+    const finalDestination = getLink(target);
 
-    // 3. Navigatie tussen stappen
-    function showStep(s) {
+    function goToStep(s) {
         document.getElementById('step1').classList.add('hidden');
         document.getElementById('step2').classList.add('hidden');
         document.getElementById('step3').classList.add('hidden');
@@ -182,48 +134,39 @@
         if (s === 2) renderAccounts();
     }
 
-    // 4. Accounts tekenen
     function renderAccounts() {
-        const container = document.getElementById('account-list');
-        container.innerHTML = '';
+        const list = document.getElementById('account-list');
+        list.innerHTML = '';
         
-        if (userList.length === 0 || userList[0] === "") {
-            container.innerHTML = "<p>No accounts found in URL.</p>";
+        if (accounts.length === 0 || accounts[0] === "") {
+            list.innerHTML = "<p>Geen accounts gevonden in de URL.</p>";
             return;
         }
 
-        userList.forEach(user => {
-            const b = document.createElement('button');
-            b.className = 'account-btn';
-            b.innerHTML = `<span>${user}</span><span>&rsaquo;</span>`;
-            b.onclick = () => {
-                document.getElementById('welcome-msg').innerText = "Welcome back";
-                document.getElementById('user-email').innerText = user;
-                showStep(3);
+        accounts.forEach(name => {
+            const btn = document.createElement('button');
+            btn.className = 'account-btn';
+            btn.innerHTML = `<span>${name}</span> <span>&rsaquo;</span>`;
+            btn.onclick = () => {
+                document.getElementById('welcome-msg').innerText = "Welcome back " + name;
+                goToStep(3);
             };
-            container.appendChild(b);
+            list.appendChild(btn);
         });
     }
 
-    // 5. Wachtwoord check
-    function verifyAndRedirect() {
-        const val = document.getElementById('pass-field').value;
+    function checkPass() {
+        const pInput = document.getElementById('pass-field').value;
         const err = document.getElementById('error-box');
         const msgs = ["Please try again", "Password incorrect", "Please try again later"];
 
-        if (val === correctPass && correctPass !== "") {
+        if (pInput === correctPassword && correctPassword !== "") {
             window.location.href = finalDestination;
         } else {
             err.innerText = "⚠ " + msgs[Math.floor(Math.random() * msgs.length)];
             document.getElementById('pass-field').value = "";
             document.getElementById('pass-field').focus();
         }
-    }
-
-    // 6. Oogje functie
-    function toggleVisibility() {
-        const f = document.getElementById('pass-field');
-        f.type = f.type === "password" ? "text" : "password";
     }
 </script>
 
