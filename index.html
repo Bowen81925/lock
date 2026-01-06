@@ -1,81 +1,198 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Secure Login</title>
     <style>
-        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 320px; text-align: center; }
-        .hidden { display: none; }
-        button { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 4px; background: #1a73e8; color: white; cursor: pointer; font-size: 16px; }
+        :root {
+            --google-blue: #1a73e8;
+            --error-red: #d93025;
+            --text-gray: #5f6368;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background: #f0f2f5; 
+            margin: 0; 
+        }
+
+        .card { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            width: 360px; 
+            min-height: 400px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hidden { display: none !important; }
+
+        h2 { 
+            color: #202124; 
+            font-size: 24px; 
+            font-weight: 400;
+            margin-bottom: 10px; 
+        }
+
+        p { color: var(--text-gray); margin-bottom: 25px; }
+
+        button { 
+            width: 100%; 
+            padding: 10px 24px; 
+            margin: 8px 0; 
+            border: none; 
+            border-radius: 4px; 
+            background: var(--google-blue); 
+            color: white; 
+            cursor: pointer; 
+            font-size: 14px; 
+            font-weight: 500; 
+        }
+
         button:hover { background: #1557b0; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .error { color: #d93025; font-size: 14px; margin-top: 10px; }
-        .account-btn { background: #f8f9fa; color: #3c4043; border: 1px solid #dadce0; text-align: left; padding-left: 15px; }
-        .account-btn:hover { background: #f1f3f4; }
+
+        /* Account knoppen styling */
+        .account-btn { 
+            background: white; 
+            color: #3c4043; 
+            border: 1px solid #dadce0; 
+            text-align: left; 
+            padding: 12px 15px; 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .account-btn:hover { background: #f8f9fa; }
+
+        /* Wachtwoord veld met oogje */
+        .password-wrapper { position: relative; width: 100%; }
+
+        input { 
+            width: 100%; 
+            padding: 13px 15px; 
+            margin: 10px 0; 
+            border: 1px solid #dadce0; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+            font-size: 16px; 
+        }
+
+        input:focus { outline: 2px solid var(--google-blue); border-color: transparent; }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            width: auto;
+            padding: 5px;
+        }
+
+        .error { 
+            color: var(--error-red); 
+            font-size: 14px; 
+            margin-top: 10px; 
+            text-align: left;
+        }
     </style>
 </head>
 <body>
 
 <div class="card" id="step1">
     <h2>Please Login To Continue</h2>
+    <p>To access this page, you need to verify your identity.</p>
     <button onclick="goToStep2()">Login</button>
 </div>
 
 <div class="card hidden" id="step2">
     <h2>Choose account:</h2>
+    <p>to continue to your destination</p>
     <div id="account-list"></div>
 </div>
 
 <div class="card hidden" id="step3">
     <h2 id="welcome-msg">Welcome back</h2>
     <p>Please enter password to continue</p>
-    <input type="password" id="password-input" placeholder="Wachtwoord">
-    <button onclick="checkPassword()">Continue</button>
+    
+    <div class="password-wrapper">
+        <input type="password" id="password-input" placeholder="Enter your password">
+        <button type="button" class="toggle-password" onclick="togglePass()">👁️</button>
+    </div>
+    
     <div id="error-msg" class="error"></div>
+    <button onclick="checkPassword()" style="margin-top: 20px;">Continue</button>
 </div>
 
 <script>
-    // Haal de data uit de URL
-    // Voorbeeld: .../432789-www.google.com.chat-hallo-hoi-doei
-    const path = window.location.pathname.split('/').pop();
-    const parts = path.split('-'); // Splits op het streepje
+    // URL parsing logica
+    // We pakken het gedeelte tussen /lock/ en de afsluitende slash
+    const pathSegments = window.location.pathname.split('/');
+    const lockIndex = pathSegments.indexOf('lock');
+    const dataPart = pathSegments[lockIndex + 1] || "";
     
-    const correctPassword = parts[0]; // "432789"
-    
-    // De link repareren (derde punt wordt een /)
-    // www.google.com.chat -> www.google.com/chat
-    let targetLink = parts[1] ? parts[1].replace(/\.(?=[^.]*$)/, '/') : "https://google.com";
-    if (!targetLink.startsWith('http')) targetLink = 'https://' + targetLink;
+    const parts = dataPart.split('-'); 
+    const correctPassword = parts[0] || ""; 
+    let destination = parts[1] || "";
+    const accounts = parts.slice(2);
 
-    // De accounts (alles na het tweede streepje)
-    const accounts = parts.slice(2); 
+    // Derde punt wordt een slash (bijv: www.google.com.chat -> www.google.com/chat)
+    function formatTargetLink(link) {
+        let count = 0;
+        let formatted = link.replace(/\./g, function(match) {
+            count++;
+            return (count === 3) ? "/" : match;
+        });
+        if (!formatted.startsWith('http')) formatted = 'https://' + formatted;
+        return formatted;
+    }
+
+    const finalUrl = formatTargetLink(destination);
 
     function goToStep2() {
         document.getElementById('step1').classList.add('hidden');
         document.getElementById('step2').classList.remove('hidden');
         
         const list = document.getElementById('account-list');
+        list.innerHTML = ''; 
+        
         accounts.forEach(acc => {
-            const btn = document.createElement('button');
-            btn.className = 'account-btn';
-            btn.innerText = acc.charAt(0).toUpperCase() + acc.slice(1);
-            btn.onclick = () => goToStep3(acc);
-            list.appendChild(btn);
+            if(acc && acc !== "") {
+                const btn = document.createElement('button');
+                btn.className = 'account-btn';
+                btn.innerHTML = `<span>${acc}</span> <span>&rsaquo;</span>`;
+                btn.onclick = () => goToStep3(acc);
+                list.appendChild(btn);
+            }
         });
     }
 
-    let selectedUser = "";
     function goToStep3(user) {
-        selectedUser = user;
         document.getElementById('step2').classList.add('hidden');
         document.getElementById('step3').classList.remove('hidden');
         document.getElementById('welcome-msg').innerText = `Welcome back, ${user}`;
     }
 
+    function togglePass() {
+        const input = document.getElementById('password-input');
+        input.type = input.type === "password" ? "text" : "password";
+    }
+
     function checkPassword() {
-        const input = document.getElementById('password-input').value;
+        const inputVal = document.getElementById('password-input').value;
         const errorDiv = document.getElementById('error-msg');
         
         const errorMessages = [
@@ -84,12 +201,13 @@
             "Please try again later"
         ];
 
-        if (input === correctPassword) {
-            window.location.href = targetLink;
+        if (inputVal === correctPassword) {
+            window.location.href = finalUrl;
         } else {
-            const randomError = errorMessages[Math.floor(Math.random() * errorMessages.length)];
-            errorDiv.innerText = randomError;
+            const randomMsg = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+            errorDiv.innerText = "⚠ " + randomMsg;
             document.getElementById('password-input').value = "";
+            document.getElementById('password-input').focus();
         }
     }
 </script>
